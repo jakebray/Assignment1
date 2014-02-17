@@ -1,36 +1,32 @@
 import java.io.IOException;
-import java.net.Socket;
-
+import java.util.LinkedList;
 
 public class BenchmarkClient {
 	
-	static final String HOST = "localhost";
-	static final int PORT = 5555;
-	
-	static final int NUM_Tests = 1000;
-	
-	public static void main(String[] args) throws IOException {
+	private static final int NUM_CLIENTS = 8;
+
+	public static void main(String[] args) throws IOException, InterruptedException {
 		System.out.println("Starting benchmark testing");
+		
+		LinkedList<ClientThread> threads = new LinkedList<ClientThread>();
 		
 		long startTime = System.currentTimeMillis();
 		
-		for(int i = 0; i < NUM_Tests; i++) {
-			Socket s = new Socket(HOST, PORT);
-			System.out.println("Client is connected to the server");
-			new ClientThread(s).start();
+		// start NUM_CLIENTS client threads at the same time 
+		for(int i = 0; i < NUM_CLIENTS; i++) {
+			ClientThread ct = new ClientThread();
+			threads.add(ct);
+			ct.start();
 		}
 		
-		long endTime = System.currentTimeMillis();
-		
-		// wait for threads to finish so that times will be printed after the rest of the output
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		// wait for each client thread to finish
+		for(ClientThread ct : threads) {
+			ct.join();
 		}
 		
-		System.out.println("Total time: " + (endTime - startTime) + "ms");
-		System.out.println("Average time per client: " + (double) (endTime - startTime) / NUM_Tests + "ms");
+		long totalTime = System.currentTimeMillis() - startTime;
+		
+		System.out.println("Total time to serve " + NUM_CLIENTS + " clients: " + totalTime + "ms");
 	}
 
 }

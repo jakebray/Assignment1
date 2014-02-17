@@ -18,8 +18,7 @@ public class SimpleClient {
 			PrintStream out = new PrintStream(s.getOutputStream());
 		) {
 			out.println(MESSAGE);
-			System.out.println("Sent: " + MESSAGE);
-			System.out.println("Server sent back: " + in.readLine());
+			System.out.println(in.readLine());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
